@@ -1,0 +1,32 @@
+.add-main-body{
+    h1{
+        color: rgb(41, 37, 37);
+        font-size: 3.0rem;
+    }
+    .container{
+        margin: 50px auto;
+        background-color: var(--white);
+        padding: 50px;
+        border-radius: 4px;
+        
+        form{
+            color: var(--gray-extra-dark);
+
+            .form-group{
+                margin: 25px auto;
+
+                .form-label{
+                    font-size: larger;
+                    font-weight: 500;
+                }
+            }
+
+        }
+        @media(min-width: 768px){
+            width: 800px;
+            background-color: rgb(255, 255, 255);
+            border: 1px solid gray
+        }
+    }
+    
+}
