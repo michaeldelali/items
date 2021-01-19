@@ -4,11 +4,11 @@
     --text-primary: #b6b6b6;
     --text-secondary: #ececec;
     --bg-primary: #23232e;
-    --bg-secondary: #141418;
+    --bg-secondary: #111129;
     --transition-speed: 600ms;
     --buttons-color:green;
     --bc: #04020a;
-    --bc-secondary: #111112;
+    --bc-secondary: #18181f;
     --bc-bright: #161617;
     --primary: #17a2b8;
     --white: #ffffff;
@@ -40,7 +40,10 @@
 
   .navbar {
     color: var(--white) !important;
-    background-color: var(--bc) !important;
+    background-color: var(--bg-secondary) !important;
+    position: fixed;
+    width: 100%;
+    top: 0;
     .navbar-brand{
       color: var(--white) !important;
     }
@@ -109,7 +112,7 @@ body.light .menu-item a {
   main {
     margin-left: 5rem;
     /* padding: 1rem; */
-    z-index: 1000;
+    z-index: -1;
   }
   @media only screen and (max-width: 600px) {
       main{
@@ -117,10 +120,12 @@ body.light .menu-item a {
       }
   }
   .inner-body{
-    margin: 0;
+    margin-top:100px;
     padding: 1rem;
+    z-index: -1;
   }
 
   a{
     text-decoration: none;
+    color: rgb(255, 255, 255);
   }

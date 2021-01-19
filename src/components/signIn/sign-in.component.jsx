@@ -1,58 +1,84 @@
-import React, { Component } from 'react'
+import React, {useCallback,useContext} from 'react'
 import 'font-awesome/css/font-awesome.min.css';
-import {signInWithGoogle,signInWithFacebook} from '../../firebase/firebase.utils';
+// import {signInWithGoogle,signInWithFacebook} from '../../firebase/firebase.utils';
+import {withRouter,Redirect} from 'react-router'
+import {Context} from '../../provider/AuthProvider'
+import axios from 'axios';
+import decode from '../../provider/decode';
 
-export default class SignIn extends Component {
-    constructor(props) {
-        super(props);
-    
-        this.state = {
-          email: '',
-          password: ''
-        };
-      }
-    
-      handleSubmit = event => {
-        event.preventDefault();
-    
-        this.setState({ email: '', password: '' });
-      };
-    
-      handleChange = event => {
-        const { value, name } = event.target;
-    
-        this.setState({ [name]: value });
-      };
+const SignIn = ({history}) => { 
 
+        const [currentUser,setCurrentUser]  = useContext(Context)
 
-    render() {
+        const handleLogin = useCallback(
+          async event => {
+            event.preventDefault();
+
+            const { email, password } = event.target.elements;
+
+            const userAuthDetails = {
+              email:email.value,
+              password:password.value
+            }
+
+            console.log(userAuthDetails)
+        
+
+            axios.post('http://localhost:9000/users/login',
+            userAuthDetails,
+            {
+              withCredentials: true,
+              headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}
+            }
+            )
+            .then(res => {
+              if (res.status === 200) {
+                history.push('/');
+                setCurrentUser(decode())
+              } else {
+                const error = new Error(res.error);
+                throw error;
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              alert('Error logging in please try again');
+            });
+          },
+          [history,setCurrentUser]
+        );
+
+        if (currentUser) {
+          return <Redirect to="/" />;
+        }
+
         return (      
             <div className="form-container sign-in-container">
-                <form onSubmit={this.handleSubmit}>
+              {console.log(currentUser)}
+                <form onSubmit={handleLogin}>
                     <h1>Sign in</h1>
-                    <div className="social-container">
+                    {/* <div className="social-container">
                         <span className="social" onClick={signInWithGoogle}><i className="fab fa-google"></i></span>
                         <span className="social" onClick={signInWithFacebook}><i className="fab fa-facebook"></i></span>
-                    </div>
-                    <span>or use your account</span>
+                    </div> */}
+                    <span>use your account</span>
                     <input 
                     type="email" 
+                    name="email"
                     placeholder="Email"
-                    value={this.state.email}
-                    onChange={this.handleChange} 
                     required
                     />
                     <input 
                     type="password" 
+                    name="password"
                     placeholder="Password"
-                    value={this.state.password}
-                    onChange={this.handleChange}
                     required
                     />
-                    <a href="#">Forgot your password?</a>
+                    <a href="/forgot?">Forgot your password?</a>
                     <button type='submit'>Sign In</button>
                 </form>
             </div>
-        )
-    }
-}
+        );
+};
+export default  withRouter(SignIn);
+

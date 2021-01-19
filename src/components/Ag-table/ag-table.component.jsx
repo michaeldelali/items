@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
-import {Container} from 'react-bootstrap';
-import { AgGridColumn, AgGridReact } from 'ag-grid-react';
+import React from 'react';
+import {  AgGridReact, AllModules } from 'ag-grid-react';
 import axios from 'axios';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import './ag-table.styles.scss';
-import { Link, Router } from 'react-router-dom';
+import {useHistory} from 'react-router-dom'
 
 
-export const ATable = () => {
+export const GridShow = ({link}) => {
+
 
     // const [gridApi, setGridApi] = useState(null);
     // const [gridColumnApi, setGridColumnApi] = useState(null);
     // const [rowData, setRowData] = useState(null);
+    const history = useHistory();
 
+    
     const onGridReady =(params)=>{
         console.log('grid is ready')
-        axios.get('http://localhost:9000/items/')
+        axios.get('http://localhost:9000/'+link)
         .then(response => {
           if (response.data.length > 0) {
            params.api.applyTransaction({add:response.data})
@@ -29,18 +31,9 @@ export const ATable = () => {
     }
     async function onSelectionChanged (e){
         const answer = await e.api.getSelectedRows();
-        const id = answer[0].['_id']; 
-        window.location = '/item/'+id;
-        // return(
-        // console.log(
-        // <Link
-        // to={{
-        //     pathname:'/item/'+id
-        // }}
-        // ></Link>   
-        // )
-        // );
-               
+        const id = answer[0]['_id']; 
+        history.push('/item/'+id);
+        console.log("clicked")           
       };   
       
       var columnDefs = [
@@ -54,19 +47,13 @@ export const ATable = () => {
 
     return (
             <div>
-            <div className="ag-theme-alpine" style={ { height: 600, width:'100%' } }>
+            <div className="ag-theme-alpine" style={ { height:'80vh', width:'100%' } }>
                 <AgGridReact
                     rowSelection={'single'}
                     onGridReady = {onGridReady}
                     onSelectionChanged={onSelectionChanged}
                     columnDefs ={columnDefs}
-
                     >
-                    {/* <AgGridColumn field="name" sortable={true}></AgGridColumn>
-                    <AgGridColumn field="category"></AgGridColumn>
-                    <AgGridColumn field="instock"></AgGridColumn>
-                    <AgGridColumn field="infield"></AgGridColumn>
-                    <AgGridColumn field="description" filter={true}></AgGridColumn> */}
                 </AgGridReact>
             </div>
             </div>
@@ -87,12 +74,6 @@ export const History =({id}) => {
           console.log(error);
         })
     }
-
-    // const onSelectionChanged = (e) => {
-    //     const answer = e.api.getSelectedRows();
-    //     const linkId = answer[0].['_id']; 
-    //     window.location = '/item/'+ linkId;           
-    //   };   
       
       var columnDefs = [
           {headerName: "User", field: "user",sortable:true,filter:true},
@@ -100,19 +81,24 @@ export const History =({id}) => {
           {headerName: "Quantity", field: "quantity"},
           {headerName: "In Stock", field: "instock"},
           {headerName: "On Field", field: "infield"},
+          {headerName: "Damaged", field: "damaged"},
           {headerName: "Date", field: "createdAt"},
       ];
+
+      var  modules = AllModules;
 
     return (
             <div>
             <div className="ag-theme-alpine" style={ { height: 600, width:'100%' } }>
                 <AgGridReact
+                modules = {modules}
                     rowSelection={'single'}
-                    onGridReady = {onGridReady}
                     // onSelectionChanged={onSelectionChanged}
                     columnDefs ={columnDefs}
-                    >
-                </AgGridReact>
+                    enableCellChangeFlash={true}
+                    onGridReady = {onGridReady}
+                />
+              
             </div>
             </div>
     );

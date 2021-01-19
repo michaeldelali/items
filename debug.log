@@ -1,1 +1,5 @@
 [1210/113227.308:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0113/101701.251:ERROR:settings.cc(321)] Settings magic is not 1129342067
+[0113/102701.311:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0114/102702.519:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)
+[0115/102702.675:ERROR:directory_reader_win.cc(43)] FindFirstFile: The system cannot find the path specified. (0x3)

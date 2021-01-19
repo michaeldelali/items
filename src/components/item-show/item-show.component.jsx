@@ -7,7 +7,7 @@ import $ from 'jquery';
 import {History} from '../Ag-table/ag-table.component';
 import axios from 'axios';
 import dateFormat from 'dateformat';
-import {auth, createUserProfileDocument} from '../../firebase/firebase.utils';
+import decode from '../../provider/decode'
 
 
 class ShowItem extends Component {
@@ -17,6 +17,7 @@ class ShowItem extends Component {
         this.onChangeValue = this.onChangeValue.bind(this);
         this.updateAdd = this.updateAdd.bind(this);
         this.updateTake = this.updateTake.bind(this);
+        this.updateDamaged = this.updateDamaged.bind(this);
     
         this.state = {
             dateNow: new Date().toLocaleString(),
@@ -25,6 +26,7 @@ class ShowItem extends Component {
            category:'',
            instock:0,
            infield:0,
+           damaged:0,
            total:0,
            change:'',
            user:'',
@@ -32,40 +34,15 @@ class ShowItem extends Component {
         }
     }
 
-    //  async nameCall(){
-    //     const username = await  auth.currentUser.displayName
-    //     return await 
-    //     this.setState({user:username});
-    // }
+
 
     componentDidMount(){
         // this.nameCall()
 
-        this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
-            if (userAuth) {
-              const userRef = await createUserProfileDocument(userAuth);
-              
-              userRef.onSnapshot(snapShot => {
-                this.setState({
-                  currentUser: {
-                    id: snapShot.id,
-                    ...snapShot.data()
-                  }
-                });
-                console.log(this.state);
-              });
-            }
-      
-            // this.setState({ currentUser: userAuth });
-            
-          });
+        this.setState({
+            currentUser:decode()
+        })
 
-        // console.log(auth.currentUser.displayName)
-        // this.setState({user:auth.currentUser.displayName})
-
-        //get data from database
-        // console.log(this.state)
-        // console.log(this.props.match)
         axios.get('http://localhost:9000/items/'+ this.props.match.params.id)
         .then(response => {
           this.setState({
@@ -73,10 +50,10 @@ class ShowItem extends Component {
             description: response.data.description,
             instock: response.data.instock,
             infield: response.data.infield,
+            damaged: response.data.damaged,
             category: response.data.category,
             createdAt: (response.data.createdAt),
-            total: response.data.instock + response.data.infield
-            // date: new Date(response.data.date)
+            total: response.data.instock + response.data.infield + response.data.damaged
           })   
         })
         .catch(function (error) {
@@ -99,6 +76,9 @@ class ShowItem extends Component {
           })
     }
 
+    componentDidUpdate(){
+    }
+
     onChangeValue(e){
         this.setState({
             change:e.target.value
@@ -107,10 +87,13 @@ class ShowItem extends Component {
     
     updateAdd(e){
         e.preventDefault();
-        if (parseInt(this.state.change,10) <= parseInt(this.state.infield,10)){
+        if ((parseInt(this.state.change,10) <= parseInt(this.state.infield,10))
+            && (parseInt(this.state.change,10) !== 0) 
+        ){
             const itemAdd = {
                 instock: parseInt(this.state.change,10) + parseInt(this.state.instock,10),
-                infield: parseInt(this.state.infield,10) - parseInt(this.state.change,10) 
+                infield: parseInt(this.state.infield,10) - parseInt(this.state.change,10),
+                damaged: parseInt(this.state.damaged,10)
             }
             console.log(itemAdd)
             axios.post('http://localhost:9000/items/update/'+ this.props.match.params.id,itemAdd)
@@ -127,6 +110,7 @@ class ShowItem extends Component {
                     itemId:this.props.match.params.id,
                     quantity:this.state.change,
                     instock:this.state.instock,
+                    damaged:this.state.damaged,
                     infield:this.state.infield
                 };
                 console.log(history);
@@ -144,10 +128,13 @@ class ShowItem extends Component {
 
     updateTake(e){
         e.preventDefault();
-        if (parseInt(this.state.change,10) <= parseInt(this.state.instock,10)){
+        if ((parseInt(this.state.change,10) <= parseInt(this.state.instock,10))
+            && (parseInt(this.state.change,10) !== 0) 
+        ){
         const itemAdd = {
             instock: parseInt(this.state.instock,10) - parseInt(this.state.change,10),
-            infield: parseInt(this.state.infield,10) + parseInt(this.state.change,10) 
+            infield: parseInt(this.state.infield,10) + parseInt(this.state.change,10),
+            damaged: parseInt(this.state.damaged,10) 
         }
         console.log(itemAdd)
         axios.post('http://localhost:9000/items/update/'+ this.props.match.params.id,itemAdd)
@@ -164,6 +151,7 @@ class ShowItem extends Component {
                 itemId:this.props.match.params.id,
                 quantity:this.state.change,
                 instock:this.state.instock,
+                damaged:this.state.damaged,
                 infield:this.state.infield
             };
             console.log(history);
@@ -178,10 +166,53 @@ class ShowItem extends Component {
     }
     }
 
+    //update Damaged Goods..................
+    updateDamaged(e){
+        e.preventDefault();
+        if ((parseInt(this.state.change,10) <= parseInt(this.state.infield,10))
+            && (parseInt(this.state.change,10) !== 0)     
+        ){
+        const itemAdd = {
+            // instock: parseInt(this.state.instock,10) - parseInt(this.state.change,10),
+            infield: parseInt(this.state.infield,10) - parseInt(this.state.change,10),
+            damaged: parseInt(this.state.damaged,10) + parseInt(this.state.change,10),
+            instock: parseInt(this.state.instock,10)
+        }
+        console.log(itemAdd)
+        axios.post('http://localhost:9000/items/update/'+ this.props.match.params.id,itemAdd)
+        .then(res => {
+            console.log(res.data);
+            this.setState({
+                damaged:itemAdd.damaged,
+                infield:itemAdd.infield
+                // infield:itemAdd.infield
+            }) 
+
+            const history = {
+                user:this.state.currentUser.displayName,
+                activity:"Added Damaged",
+                itemId:this.props.match.params.id,
+                quantity:this.state.change,
+                instock:this.state.instock,
+                damaged:this.state.damaged,
+                infield:this.state.infield
+            };
+            console.log(history);
+
+            axios.post('http://localhost:9000/history/add',history)
+            .then(res => console.log(res.data));
+
+        })
+        }
+    else{
+        $('.form-text').html("Quantity must be less than or equal to that in field") 
+    }
+    }
+
     render() {
         
         return (
-            <div>
+            <div  className='show-item-container'>
             <div className="blog-slider">
                 <div className="blog-slider__wrp swiper-wrapper">
                     <div className="blog-slider__item swiper-slide">
@@ -197,13 +228,16 @@ class ShowItem extends Component {
                             <Form.Control type="text" placeholder="Enter amount to take or add" 
                                value ={this.state.change}
                                onChange ={this.onChangeValue}
+                               required
                             />
                         </Form.Group>
                         <Form.Text className="text-danger my-2">
                         </Form.Text>
                         <div className="buttons d-flex flex-row justify-content-center">
-                            <Button variant="outline-dark" type="submit" className='rounded-pill px-5 m-2'> ADD</Button>
-                            <Button variant="dark" type="submit" onClick={this.updateTake} className='rounded-pill px-5 m-2'> TAKE</Button>
+                            <Button variant="outline-dark" type="submit" className='rounded-pill px-5 m-2'>REPLACE</Button>
+                            <Button variant="dark" type="submit" onClick={this.updateTake} className='rounded-pill px-5 m-2'>TAKE</Button>
+                            <Button variant="outline-danger" type="submit" onClick={this.updateDamaged} className='rounded-pill px-5 m-2'>DAMAGED</Button>
+                            <Button variant="primary" type="submit" onClick={this.addMore} className='rounded-pill px-5 m-2'>ADD</Button>
                         </div>
                         {/* <a href="#" className="blog-slider__button btn1">READ MORE</a>
                         <a href="#" className="blog-slider__button btn2">READ MORE</a> */}
@@ -227,6 +261,14 @@ class ShowItem extends Component {
                     <div className="card__front">
                         <p className="card__name"><span>In</span><br/>Stock</p>
                         <p className="card__num">{this.state.instock}</p>
+                    </div>
+                    </div>
+                </li>
+                <li className="card">
+                    <div className="card__flipper">
+                    <div className="card__front">
+                        <p className="card__name"><br/>Damaged</p>
+                        <p className="card__num">{this.state.damaged}</p>
                     </div>
                     </div>
                 </li>

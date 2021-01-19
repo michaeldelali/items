@@ -1,48 +1,75 @@
-import React, { Component } from 'react';
-import {Navbar,Nav,NavDropdown} from 'react-bootstrap';
-import { auth } from '../../firebase/firebase.utils';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React,{useContext} from 'react';
 import './header.styles.scss';
+import {Nav,Navbar} from 'react-bootstrap';
+import {Context} from '../../provider/AuthProvider';
+import {NavLink,useHistory} from "react-router-dom";
+import Cookies from 'js-cookie'
+import decode from '../../provider/decode'
+// import {Link} from 'react-dom'
 
-const Header = ({currentUser}) => (         
-        <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" sticky='top' className='py-4'>
-            <Navbar.Brand href="/" className='mr-auto' >Inventory</Navbar.Brand>
-            <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
-            <Navbar.Collapse id="responsive-navbar-nav"className='justify-content-center'>
-                <Nav  >
-                <NavDropdown title="Major" id="collasible-nav-dropdown">
-                    <NavDropdown.Item href="#action/3.1">Major 1</NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.2">Major 2</NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.3">Major 3</NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action/3.4">Major 4</NavDropdown.Item>
-                </NavDropdown>
+const Header = () =>{
+    
+        const [currentUser,setCurrentUser]  = useContext(Context)
+        // const [cookie,setCookie] = useState(Cookies.remove('token'))
+        console.log(currentUser)
+        const history = useHistory();
 
-                <NavDropdown title="Minor" id="collasible-nav-dropdown">
-                    <NavDropdown.Item href="#action/3.1">Minor 1</NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.2">Minor 2</NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.3">Minor 3</NavDropdown.Item>
-                    <NavDropdown.Divider />
-                    <NavDropdown.Item href="#action/3.4">Minor 4</NavDropdown.Item>
-                </NavDropdown>
-                </Nav>
-                <Nav>
-                        <Nav.Link href='/createItem'>
-                            Create Item
-                        </Nav.Link>                     
-                        {currentUser ? (
-                            <Nav.Link className='option' onClick={() => auth.signOut()}>
-                            SIGN OUT
-                            {currentUser.displayName}
-                            </Nav.Link>
+        function signOut(){
+            Cookies.remove('token')
+            history.push('/signin');
+            setCurrentUser(decode())
+        }
+
+        return(
+        <div>
+            <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark"className='py-4' >
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" className='mr-4'/>
+                    <Navbar.Brand className='mr-auto' >
+                        <NavLink exact to='/' activeClassName="selected">Inventory</NavLink>
+                    </Navbar.Brand>
+                    <Navbar.Collapse id="responsive-navbar-nav"className='justify-content-center'>
+                        {
+                            // <Link to='/items/major'>Major</Link>
+                            currentUser?(
+                            <Nav >                              
+                                <NavLink to='/items/major' activeClassName="selected">Major</NavLink>
+                                <NavLink to='/items/minor' activeClassName="selected">Minor</NavLink>
+                                <NavLink to='/createItem' activeClassName="selected">Create Item</NavLink>  
+                            </Nav>
+                            
+                            ):(
+                                <Nav></Nav>
+                            )
+                        }
+                    </Navbar.Collapse>
+                    {
+                        currentUser?(
+                            <>
+                            <div className="navbar-right flexbox-right">
+                            <div className='detail'><a><i className="iconify" data-icon="uil-user"></i>{currentUser.displayName}</a></div>
+                            <div className='mr-4 detail' onClick={() => signOut()} ><a ><i className="iconify" data-icon="clarity:ellipsis-vertical-line"></i> Logout</a></div>
+                            {/* <a className="profile-picture">
+                                <img src="https://i.imgur.com/aIcL9f6.jpg" width="100%" height="100%" alt=""/>
+                            </a> */}
+                        </div>
+                         <div id="dropdownmenu" className="flexbox-col">
+                             
+                             <div id="switch" className="menu-item"><a><i className="iconify" data-icon="uil-sunset"></i> Light Mode</a></div>
+                             
+                         </div>
+                         </>
+                        
                         ) : (
                             <Nav.Link className='option' href='/signin'>
-                            SIGN IN
+                                SIGN IN
                             </Nav.Link>
-                        )}  
-                                           
-                </Nav>
-            </Navbar.Collapse>
-        </Navbar>
+                        )
+                    }
+
+            </Navbar>
+        </div>
         );
+};
 
 export default Header;

@@ -1,73 +1,39 @@
-import React,{Component} from 'react';
+import React from 'react';
 import './App.scss';
-import SideNavbar from '../src/components/side-navbar/side-navbar.component';
-import { BrowserRouter as Router, Route} from "react-router-dom";
-import Header from '../src/components/header/header.component';
-import Items from '../src/components/table/items.component';
-import {ATable} from '../src/components/Ag-table/ag-table.component';
+import { BrowserRouter as Router, Route,Switch} from "react-router-dom";
+// import Header from '../src/components/header/header.component';
 import CreateItem from '../src/components/create-items/create-items.component';
 import ShowItem from './components/item-show/item-show.component';
 import Register from './pages/register/register.component';
-import Header2 from './components/header2/header2.component'
-import { auth, createUserProfileDocument } from './firebase/firebase.utils';
-import $ from 'jquery'
+import Header from './components/header/header.component'
+import {AuthProvider} from './provider/AuthProvider'
+import PrivateRoute from './provider/PrivateRoute'
+import Overview from './components/overview/overview.component';
+import Major from './components/major/major.component';
+import Minor from './components/minor/minor.component';
+import Forgot from './components/forgot/forgot.component';
 
-// const {test} = useContext(firebaseAuth)
-// console.log(test)
+const App = () => {
 
-class App extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      currentUser: null
-    };
-    
-  }
-
-
-  unsubscribeFromAuth = null;
-  
-  componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
-      if (userAuth) {
-        const userRef = await createUserProfileDocument(userAuth);
-        
-        userRef.onSnapshot(snapShot => {
-          this.setState({
-            currentUser: {
-              id: snapShot.id,
-              ...snapShot.data()
-            }
-          });
-          // console.log(this.state);
-        });
-      }
-
-      this.setState({ currentUser: userAuth });
-      
-    });
-    
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeFromAuth();
-  }
-
-
-    render(){
           return (
-            <Router>
-                <Header2 currentUser={this.state.currentUser}/>
-                  <div className='inner-body'>
-                    <Route path='/' exact component={ATable}/>
-                    <Route path ='/createItem' component={CreateItem}/>
-                    <Route path ='/item/:id' component={ShowItem}/>
-                    <Route path ='/signin' component={Register}/>   
-                  </div>
-            </Router>
+            <AuthProvider>   
+              <Switch>
+                <Router>
+                  <Header/>
+                      <div className='inner-body'>
+                        <PrivateRoute path='/' exact component={Overview}/>
+                        <PrivateRoute path ='/createItem' component={CreateItem}/>
+                        <Route path ='/items/major' component={Major}/>
+                        <PrivateRoute path ='/items/minor' component={Minor}/>
+                        <PrivateRoute path ='/item/:id' component={ShowItem}/>
+                        <Route path ='/signin' component={Register}/> 
+                        <Route path ='/forget' component={Forgot}/>  
+                      </div>
+                </Router>
+              </Switch>
+           </AuthProvider>
           );
-      }
 }
 
 export default App
+

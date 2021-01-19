@@ -1,4 +1,4 @@
-import React, { Component,useContext } from 'react';
+import React, {Component} from 'react';
 import SignUp from '../../components/signUp/sign-up.component';
 import SignIn from '../../components/signIn/sign-in.component';
 import './register.styles.scss';
@@ -55,7 +55,7 @@ class Register extends Component {
                                 <button className="ghost" id="signIn">Sign In</button>
                             </div>
                             <div className="overlay-panel overlay-right">
-                                <h1>Hello, Friend!</h1>
+                                <h1>Register</h1>
                                 <p>Enter your personal details</p>
                                 <button className="ghost" id="signUp">Sign Up</button>
                             </div>

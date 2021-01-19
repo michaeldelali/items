@@ -11,6 +11,7 @@ export default class CreateItems extends Component {
         this.onChangeDescription = this.onChangeDescription.bind(this);
         this.onChangeCategory = this.onChangeCategory.bind(this);
         this.onChangeInstock = this.onChangeInstock.bind(this);
+        this.onChangeDamaged = this.onChangeDamaged.bind(this);
         this.onChangeInfield = this.onChangeInfield.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
     
@@ -19,7 +20,8 @@ export default class CreateItems extends Component {
            description:'',
            category:'Major',
            instock:'',
-           infield:0
+           infield:0,
+           damaged:0
         }
     }
 
@@ -57,6 +59,12 @@ export default class CreateItems extends Component {
         })
       }
 
+      onChangeDamaged(e) {
+        this.setState({
+          instock: e.target.value
+        })
+      }
+
       onChangeInfield(e) {
         this.setState({
           infield: e.target.value
@@ -70,6 +78,7 @@ export default class CreateItems extends Component {
           description: this.state.description,
           category: this.state.category,
           instock: this.state.instock,
+          damaged:this.state.damaged,
           infield: this.state.infield
         }
     
@@ -110,6 +119,13 @@ export default class CreateItems extends Component {
                     <Form.Control type="text" placeholder="Item Infield"
                         value = {this.state.infield}
                         onChange = {this.onChangeInfield}
+                    />
+                </Form.Group>
+                <Form.Group controlId="formBasicDamaged" style={{display:'none'}}>
+                    <Form.Label>Quantity in Field</Form.Label>
+                    <Form.Control type="text" placeholder="Damaged"
+                        value = {this.state.damaged}
+                        onChange = {this.onChangeDamaged}
                     />
                 </Form.Group>
                 <Form.Group controlId="exampleForm.ControlSelect1">
