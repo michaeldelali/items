@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from "react";
-import decode from './decode'
+import {decode} from './decode'
 import './spinner.styles.scss';
 
 export const Context = React.createContext();
@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   // const [cookie,setCookie] = useState(null)
 
   useEffect(() => {
-    console.log(decode())
     setCurrentUser(decode())
     setPending(false)
   }, [])

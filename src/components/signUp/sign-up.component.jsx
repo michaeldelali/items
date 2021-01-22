@@ -2,7 +2,7 @@ import React, {useCallback,useContext} from 'react'
 import {withRouter} from "react-router";
 import axios from 'axios';
 import {Context} from '../../provider/AuthProvider'
-import decode from '../../provider/decode'
+import {decode,baseUrl} from '../../provider/decode'
 
 
 const SignUp = ({history}) =>{
@@ -31,11 +31,11 @@ const SignUp = ({history}) =>{
           return;
         }    
           
-          await axios.post('http://localhost:9000/users/register', userDetails)
+          await axios.post(baseUrl +'users/register', userDetails)
           .then(res => {
             if (res.status === 200){
               
-              axios.post('http://localhost:9000/users/login',
+              axios.post(baseUrl + 'users/login',
               userAuthDetails,
               {
                 withCredentials: true,

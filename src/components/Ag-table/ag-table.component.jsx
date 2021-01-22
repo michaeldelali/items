@@ -6,6 +6,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import './ag-table.styles.scss';
 import {useHistory} from 'react-router-dom'
+import {baseUrl} from '../../provider/decode'
 
 
 export const GridShow = ({link}) => {
@@ -17,10 +18,10 @@ export const GridShow = ({link}) => {
     const history = useHistory();
 
     
-    const onGridReady =(params)=>{
-        console.log('grid is ready')
-        axios.get('http://localhost:9000/'+link)
-        .then(response => {
+    const onGridReady = (params) =>{
+        console.log('grid is ready');
+        axios.get(baseUrl + link) 
+       .then(response => {
           if (response.data.length > 0) {
            params.api.applyTransaction({add:response.data})
           }
@@ -37,12 +38,12 @@ export const GridShow = ({link}) => {
       };   
       
       var columnDefs = [
-          {headerName: "ID", field: "_id",sortable:true,filter:true},
-          {headerName: "Name", field: "name",sortable:true,filter:true},
-          {headerName: "Category", field: "category"},
-          {headerName: "In Stock", field: "instock"},
-          {headerName: "On Field", field: "infield"},
-          {headerName: "Description", field: "description",filter:true}
+        {headerName: "Name", field: "name",sortable:true,filter:true},
+        {headerName: "Category", field: "category"},
+        {headerName: "In Stock", field: "instock"},
+        {headerName: "On Field", field: "infield"},
+        {headerName: "Description", field: "description",filter:true},
+        {headerName: "ID", field: "_id",sortable:true,filter:true},
       ];
 
     return (
@@ -64,7 +65,7 @@ export const History =({id}) => {
 
     const onGridReady =(params)=>{
         console.log('grid is ready')
-        axios.get('http://localhost:9000/history/item/'+ id)
+        axios.get(baseUrl + 'history/item/'+ id)
         .then(response => {
           if (response.data.length > 0) {
            params.api.applyTransaction({add:response.data})

@@ -4,7 +4,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import {withRouter,Redirect} from 'react-router'
 import {Context} from '../../provider/AuthProvider'
 import axios from 'axios';
-import decode from '../../provider/decode';
+import {decode,baseUrl} from '../../provider/decode';
 
 const SignIn = ({history}) => { 
 
@@ -24,7 +24,8 @@ const SignIn = ({history}) => {
             console.log(userAuthDetails)
         
 
-            axios.post('http://localhost:9000/users/login',
+            // axios.get(baseUrl + 'users/checkToken',
+            axios.post(baseUrl + 'users/login',
             userAuthDetails,
             {
               withCredentials: true,

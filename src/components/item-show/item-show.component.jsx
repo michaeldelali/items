@@ -7,7 +7,7 @@ import $ from 'jquery';
 import {History} from '../Ag-table/ag-table.component';
 import axios from 'axios';
 import dateFormat from 'dateformat';
-import decode from '../../provider/decode'
+import {decode,baseUrl} from '../../provider/decode'
 
 
 class ShowItem extends Component {
@@ -15,12 +15,13 @@ class ShowItem extends Component {
         super();
 
         this.onChangeValue = this.onChangeValue.bind(this);
-        this.updateAdd = this.updateAdd.bind(this);
+        this.updateReplace = this.updateReplace.bind(this);
         this.updateTake = this.updateTake.bind(this);
         this.updateDamaged = this.updateDamaged.bind(this);
+        this.addMore = this.addMore.bind(this);
     
         this.state = {
-            dateNow: new Date().toLocaleString(),
+           dateNow: new Date().toLocaleString(),
            name :'',  
            description:'',
            category:'',
@@ -43,7 +44,7 @@ class ShowItem extends Component {
             currentUser:decode()
         })
 
-        axios.get('http://localhost:9000/items/'+ this.props.match.params.id)
+        axios.get(baseUrl + 'items/'+ this.props.match.params.id)
         .then(response => {
           this.setState({
             name: response.data.name,
@@ -85,7 +86,7 @@ class ShowItem extends Component {
         })
     }
     
-    updateAdd(e){
+    updateReplace(e){
         e.preventDefault();
         if ((parseInt(this.state.change,10) <= parseInt(this.state.infield,10))
             && (parseInt(this.state.change,10) !== 0) 
@@ -96,17 +97,18 @@ class ShowItem extends Component {
                 damaged: parseInt(this.state.damaged,10)
             }
             console.log(itemAdd)
-            axios.post('http://localhost:9000/items/update/'+ this.props.match.params.id,itemAdd)
+            axios.post(baseUrl + 'items/update/'+ this.props.match.params.id,itemAdd)
             .then(res => {
                 console.log(res.data);
                 this.setState({
                     instock:itemAdd.instock,
-                    infield:itemAdd.infield
+                    infield:itemAdd.infield,
+                    
                 })
             
                 const history = {
                     user:this.state.currentUser.displayName,
-                    activity:"Added",
+                    activity:"Replaced Items",
                     itemId:this.props.match.params.id,
                     quantity:this.state.change,
                     instock:this.state.instock,
@@ -115,13 +117,53 @@ class ShowItem extends Component {
                 };
                 console.log(history);
 
-                axios.post('http://localhost:9000/history/add',history)
+                axios.post(baseUrl + 'history/add',history)
                 .then(res => console.log(res.data));
 
             })
             }
             else{
                 $('.form-text').html("Quantity must be less than or equal to that on field") 
+            }
+        }
+
+    addMore(e){
+        e.preventDefault();
+        if (parseInt(this.state.change,10) > 0){
+
+            const itemAdd = {
+                instock: parseInt(this.state.change,10) + parseInt(this.state.instock,10),
+                infield: parseInt(this.state.infield,10),
+                damaged: parseInt(this.state.damaged,10) 
+            }
+
+            console.log(itemAdd)
+            axios.post(baseUrl + 'items/update/'+ this.props.match.params.id,itemAdd)
+            .then(res => {
+                console.log(res.data);
+                this.setState({
+                    instock:itemAdd.instock,
+                    total:itemAdd.instock + this.state.infield + this.state.damaged,
+                })
+            
+                const history = {
+                    user:this.state.currentUser.displayName,
+                    activity:"Added More Items",
+                    itemId:this.props.match.params.id,
+                    quantity:this.state.change,
+                    instock:this.state.instock,
+                    damaged:this.state.damaged,
+                    infield:this.state.infield
+                };
+                console.log(history);
+
+                axios.post(baseUrl + 'history/add',history)
+                .then(res => console.log(res.data));
+
+            })
+            }
+            else{
+                $('.form-text').html("Quantity must be greater than 0") 
             }
         }
 
@@ -137,7 +179,7 @@ class ShowItem extends Component {
             damaged: parseInt(this.state.damaged,10) 
         }
         console.log(itemAdd)
-        axios.post('http://localhost:9000/items/update/'+ this.props.match.params.id,itemAdd)
+        axios.post(baseUrl + 'items/update/'+ this.props.match.params.id,itemAdd)
         .then(res => {
             console.log(res.data);
             this.setState({
@@ -156,7 +198,7 @@ class ShowItem extends Component {
             };
             console.log(history);
 
-            axios.post('http://localhost:9000/history/add',history)
+            axios.post(baseUrl + 'history/add',history)
             .then(res => console.log(res.data));
 
         })
@@ -179,7 +221,7 @@ class ShowItem extends Component {
             instock: parseInt(this.state.instock,10)
         }
         console.log(itemAdd)
-        axios.post('http://localhost:9000/items/update/'+ this.props.match.params.id,itemAdd)
+        axios.post(baseUrl + 'items/update/'+ this.props.match.params.id,itemAdd)
         .then(res => {
             console.log(res.data);
             this.setState({
@@ -199,7 +241,7 @@ class ShowItem extends Component {
             };
             console.log(history);
 
-            axios.post('http://localhost:9000/history/add',history)
+            axios.post(baseUrl + 'history/add',history)
             .then(res => console.log(res.data));
 
         })
@@ -220,7 +262,7 @@ class ShowItem extends Component {
                         
                         <img src={itempic} alt=""/>
                     </div>
-                    <form onSubmit={this.updateAdd} className="blog-slider__content">
+                    <form onSubmit={this.updateReplace} className="blog-slider__content">
                         <span className="blog-slider__code">{this.state.dateNow}</span>
                         <div className="blog-slider__title">{this.state.name}</div>
                         <div className="blog-slider__text">Date Logged: {dateFormat(this.state.createdAt,"dddd,mmmm,dS,yyyy hh:mm")} </div>
@@ -234,7 +276,7 @@ class ShowItem extends Component {
                         <Form.Text className="text-danger my-2">
                         </Form.Text>
                         <div className="buttons d-flex flex-row justify-content-center">
-                            <Button variant="outline-dark" type="submit" className='rounded-pill px-5 m-2'>REPLACE</Button>
+                            <Button variant="outline-dark" type="submit" className='rounded-pill px-5 m-2'>Replace</Button>
                             <Button variant="dark" type="submit" onClick={this.updateTake} className='rounded-pill px-5 m-2'>TAKE</Button>
                             <Button variant="outline-danger" type="submit" onClick={this.updateDamaged} className='rounded-pill px-5 m-2'>DAMAGED</Button>
                             <Button variant="primary" type="submit" onClick={this.addMore} className='rounded-pill px-5 m-2'>ADD</Button>

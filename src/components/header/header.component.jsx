@@ -5,7 +5,7 @@ import {Nav,Navbar} from 'react-bootstrap';
 import {Context} from '../../provider/AuthProvider';
 import {NavLink,useHistory} from "react-router-dom";
 import Cookies from 'js-cookie'
-import decode from '../../provider/decode'
+import {decode} from '../../provider/decode'
 // import {Link} from 'react-dom'
 
 const Header = () =>{

@@ -11,5 +11,9 @@
 
 .ag-row:hover{
   cursor: pointer;
-  position: relative;
+  &:after{
+    content:'Click To View';
+    margin-left:100px;
+    color:#ffaffa;
+  }
 }
